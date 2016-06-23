@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="leaflet.ajax.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.Default.css" />
+    <!--
+    Current CDN version and GitHub dist version still have a bug when using removeLayer while MCG is not on map.
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster-src.js"></script>
+    Therefore we use the master rebuilt version below.
+    -->
+    <script src="http://ghybs.github.io/Leaflet.MarkerCluster.LayerSupport/examples/leaflet.markercluster-src.js"></script>
+    <script src="http://ghybs.github.io/Leaflet.MarkerCluster.LayerSupport/leaflet.markercluster.layersupport-src.js"></script>
+
+    <script src="http://www.eliglazier.com/assets/js/SliderControl.js" type="text/javascript"></script>
+        <script src='http://momentjs.com/downloads/moment.js'></script>
+    <script type="text/javascript" src="http://www.eliglazier.com/assets/js/Autolinker.min.js"></script>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" type="text/css">
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.2/jquery.ui.touch-punch.min.js"></script>
+    <script src="http://www.eliglazier.com/assets/js/bootstrap.min.js"></script>
+    <link href="http://www.eliglazier.com/assets/css/bootstrap.css" rel="stylesheet">
+    <script src="http://www.eliglazier.com/assets/js/bootstrap-sortable.js"></script>
+    <link href="http://www.eliglazier.com/assets/css/bootstrap-sortable.css" rel="stylesheet">
+    <style>
+body {
+    padding: 0;
+    margin: 0;
+}
+#container{
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    position: relative;
+}
+html, body {
+    height: 100%;
+    color: #FFF;
+        font-family: Roboto, san serif;
+    font-size: smaller;
+}
+#map {
+position:relative;
+height:100%;
+width: 100%;
+}
+    .marker-cluster-small div {
+    background-color: #a6cee3;
+    opacity: 1
+}
+.marker-cluster-small {
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    opacity: 1
+}
+.marker-cluster-medium div {
+    background-color: #a6cee3;
+    opacity: 1
+}
+.marker-cluster-medium {
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    opacity: 1
+}
+.marker-cluster-large div {
+    background-color: #a6cee3;
+    opacity: 1
+}
+.marker-cluster-large {
+        width: 30px;
+    height: 30px;
+    background-color: transparent;
+    opacity: 1
+}
+.leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated leaflet-clickable{
+display:none;
+}
+    </style>
+    </head>
+    <body>
+
+
+
+<style>
+.table table-bordered{
+bottom: 0;
+height:20%;
+z-index:2;
+position:absolute;
+text-align: center;
+opacity:.9;
+}
+#coordinates {
+color: #FFFfff;
+opacity:.9;
+}
+#table1{
+position:absolute;
+bottom: 22px;
+height:25%;
+z-index:2;
+text-align: center;
+}
+tr {
+width: 100%;
+display: inline-table;
+height:30px;
+table-layout: fixed;
+  
+}
+.leaflet-container {
+    font: 12px/1.5 Roboto, sans-serif;
+    color:black;
+}
+th {
+    text-align: center;
+    }
+    .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td {
+    border: 0px solid #ddd;
+}
+.table-bordered > thead > tr > th{
+    border: 1px solid #ddd;
+    border-top-color: rgb(221, 221, 221);
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-right-color: rgb(221, 221, 221);
+    border-right-style: solid;
+    border-right-width: 0px;
+    border-bottom-color: rgb(221, 221, 221);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-left-color: rgb(221, 221, 221);
+    border-left-style: solid;
+    border-left-width: 0px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+        max-width: 100%;
+    background-color: rgba(17,17,17,.9);
+    color: #FFF;
+    text-align: center;
+}
+
+
+
+tbody{
+  overflow-y: auto;
+  height: 83%;
+  width: 100%;
+  position: absolute;
+  background-color: rgba(17,17,17,.9)
+}
+
+.legendtable {
+
+	opacity:.9;
+	color:#FFF;
+	background-color: rgba(17,17,17,.9)
+	
+	}
+.slidertable {
+
+	color:#FFF;
+	background-color: rgba(17,17,17,.9)
+	
+	}
+.legendtext {
+background-color: rgba(17,17,17,.9)
+padding-left:2%;
+color: #FFF;
+height:125px
+}
+.slidertext {
+background-color: rgba(17,17,17,.9)
+padding-left:2%;
+color: #FFF;
+height:25px;
+overflow-y:initial;
+}
+
+
+
+.leaflet-right{
+width:222px;
+right:1%;
+}
+.legendhead{
+text-align:left;
+}
+#legendtr{
+text-align:left;
+}
+
+#total {
+font-style:italic;
+padding-left:2%;
+}
+.legendtitle {
+padding-left:5%;
+width:100%
+}
+.circleBase {
+    border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+}
+.electrical {
+    width: 15px;
+    height: 15px;
+    background: #7FC97F;
+}
+.plumbinggas {
+    width: 15px;
+    height: 15px;
+    background: #beaed4;
+}
+.alterationrepair {
+    width: 15px;
+    height: 15px;
+    background: #fdc086;
+}
+.mechanical {
+    width: 15px;
+    height: 15px;
+    background: #FFFf99;
+}
+.building {
+    width: 15px;
+    height: 15px;
+    background: #f0027f;
+}
+.other {
+    width: 15px;
+    height: 15px;
+    background:#ff69b4 ;
+}
+#legend {
+padding-top:38%
+}
+
+.legendcircle {
+    text-align: -webkit-center;
+    padding-left:15px;
+}
+.legendrow {
+	display: table-row-group;
+	height:18px;
+}
+.sliderrow {
+	display: inline-grid;
+	text-align: center;
+	padding-bottom:2px;
+}
+#slider {
+margin-top: -40%;
+z-index:45084098;
+}
+#sliderhead{
+background-color: rgba(17,17,17,.9)
+}
+#timestamp1 {
+
+    color: white;
+    z-index: 349034
+}
+#timestamp2 {
+
+    color: white;
+    z-index: 349034
+}
+#slider-timestamp {
+visibility:hidden;
+}
+.slidercell{
+vertical-align:initial;
+height:10px;
+font-size:medium;
+}
+td {
+padding:2px
+}
+.leaflet-container .leaflet-control-attribution, .leaflet-container .leaflet-control-scale {
+    font-size: 11px;
+    width: 400px;
+    margin-right: -11px;
+}
+
+#to{
+vertical-align:initial;
+}
+</style>
+
+<div id = 'container'>
+
+	<div id='map'></div>
+		<div id = 'table1'>
+		<table  class='table table-bordered'>
+		<thead>
+		<tr>
+			<th>ISSUE DATE</th>
+			<th>APPLICATION STATUS</th>
+			<th>OWNER</th>
+			<th>ANC</th>
+			<th>ADDRESS</th>
+			<th>PERMIT TYPE</th>
+			<th>PERMIT SUBTYPE</th>
+			<th>WORK DESCRIPTION</th>
+			<th>PERMIT ID</th>
+		</thead>
+		<tbody id='coordinates'></tbody></table>
+		</div>
+</div>
+
+<div class = 'leaflet-top leaflet-right'>
+	<div id = 'legend'>
+	<table class = 'legendtable'>
+		<thead class = 'legendhead'>
+		<tr>
+			<th>THIS WEEK'S BUILDING PERMITS</th>
+		</thead>
+		<tbody class = 'legendtext'>
+		<tr class = 'legendrow'>
+			<td class = 'legendcircle'><div class ='circleBase electrical'></div> </td><td class = 'legendtitle'>Electrical</td>
+		<tr class = 'legendrow'>
+			<td class = 'legendcircle'><div class ='circleBase plumbinggas'></div> </td><td class = 'legendtitle'>Plumbing / Gas</td>
+		<tr class = 'legendrow'>
+			<td class = 'legendcircle'><div class ='circleBase alterationrepair'></div> </td><td class = 'legendtitle'>Alteration / Repair</td>
+		<tr class = 'legendrow'>
+			<td class = 'legendcircle'><div class ='circleBase mechanical'></div> </td><td class = 'legendtitle'>Mechanical</td>			
+		<tr class = 'legendrow'>
+			<td class = 'legendcircle'><div class ='circleBase building'></div> </td><td class = 'legendtitle'>Building</td>	
+		<tr class = 'legendrow'>
+			<td class = 'legendcircle'><div class ='circleBase other'></div> </td><td class = 'legendtitle'>Other</td>						
+		</tbody>
+
+	</table>
+	</div>
+
+	<div id = 'slider'>
+	<table class = 'slidertable'>
+		<thead class = 'sliderhead'>
+		<tr>
+			<th>PERMIT DATE RANGE</th>
+		</thead>
+		<tbody class = 'slidertext'>
+		<tr class = 'sliderrow'>
+			<td class = 'slidercell'> <div id = 'timestamp1'></div></td><td id = 'to'>TO</td><td class = 'slidercell'><div id = 'timestamp2'></div></td>
+		</tbody>
+
+	</table>
+	</div>
+</div>
+
+<script type="application/javascript">
+    var sliderControl = null;
+    var map = L.map('map',{attributionControl:false}).setView([38.912753,-77.032194], 13);
+    var credits = L.control.attribution().setPrefix('').addTo(map);
+credits.addAttribution("© <a href='http://www.eliglazier.com/borderstan.html'>Eli Glazier</a>, <a href='http://opendata.dc.gov/'>DC Open Data</a>, © <a href='https://www.mapbox.com/map-feedback/'>Mapbox</a>");
+    		
+    L.tileLayer('https://api.mapbox.com/styles/v1/eliglazier/cinxnmq8v0008b1nuz1hwjv5h/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWxpZ2xhemllciIsImEiOiJNVjVFa0Y0In0.L768MquxrC4bO7QSMByK6Q', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    //Fetch some data from a GeoJSON file
+    $.getJSON("borderstanweek.geojson", function(json) {
+	var geojsonMarkerOptions = {
+    radius: 3,
+    color: "#000",
+    weight: 3,
+    opacity: 1,
+    fillOpacity:1,
+};
+var autolinker = new Autolinker( {
+    newWindow : false,
+    truncate  : 30
+} );
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        color: '#666',
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera) {
+        layer.bringToFront();
+    }
+}
+function resetHighlight(e) {
+    testlayer.resetStyle(e.target);
+}
+        var testlayer = L.geoJson(json, {
+        style: function(feature){
+        	switch(feature.properties.permit_subtype_name){
+        		case 'ELECTRICAL': return {color: "#7FC97F"};
+        		case 'ELECTRICAL - GENERAL': return {color: "#7FC97F"};
+        		case 'PLUMBING AND GAS': return {color: "#beaed4"};
+        		case 'PLUMBING': return {color: "#beaed4"};
+        		case 'ALTERATION AND REPAIR': return {color: "#fdc086"};
+        		case 'MECHANICAL': return {color: "#FFFf99"};
+        		case 'BUILDING': return {color: "#f0027f"};
+        		default: return {color: "#ff69b4"};
+        	}
+        },
+        onEachFeature: function(feature,layer){
+        	layer.bindPopup('<b>Issued: </b>'+ moment(feature.properties.issue_date).format("dddd, MMMM DD, YYYY") +'<br />'+
+        						   '<b> Status: </b>'+ feature.properties.application_status_name +'<br />'+
+				  				   '<b> Owner: </b>'+ feature.properties.owner_name +'<br />'+
+				  				   '<b> ANC: </b>'+ feature.properties.anc + '<br />'+
+				  				   '<b> Address: </b>'+ feature.properties.full_address + '<br />'+
+				  				   '<b> Permit Type: </b>'+ feature.properties.permit_type_name + '<br />'+
+				  				   '<b> Permit Subtype: </b>'+ feature.properties.permit_subtype_name + '<br />'+
+				  				   '<b> Description of Work: </b>'+ autolinker.link(feature.properties.desc_of_work) + '<br />'+
+				  				   '<b> ID: </b>'+ feature.properties.permit_id + '<br />'
+				  				   ),
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight})
+				  				   },
+        
+    	pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, geojsonMarkerOptions);
+    }});
+
+        // Check into MCG Layer Support!
+        // Add to map first before checking in.
+        var maybe = L.markerClusterGroup.layerSupport({showCoverageOnHover:false,spiderfyDistanceMultiplier:1.5,maxClusterRadius: 55, spiderLegPolylineOptions:{weight:.01}}).addTo(map).checkIn(testlayer);
+
+        sliderControl = L.control.sliderControl({
+            position: 'topright',
+            layer: testlayer,
+            range: true,
+            showAllOnStart:true
+        });
+
+        //Make sure to add the slider to the map ;-)
+        map.addControl(sliderControl);
+        //And initialize the slider
+        sliderControl.startSlider();
+function changeTimestamps(){
+ $("#timestamp1").html( moment.utc(sliderControl.options.markers[$("#leaflet-slider").slider( "values", 0 )].feature.properties.issue_date).format("MMMM DD") )
+ 
+ $("#timestamp2").html( moment.utc(sliderControl.options.markers[$("#leaflet-slider").slider( "values", 1 )].feature.properties.issue_date).format("MMMM DD") )
+ 
+}
+
+$("#leaflet-slider").on( "mousemove", changeTimestamps);
+
+changeTimestamps();
+
+        
+        function onmove() {
+    // Get the map bounds - the top-left and bottom-right locations.
+    var inBounds = [],
+        bounds = map.getBounds();
+    maybe.eachLayer(function(feature) {
+        // For each marker, consider whether it is currently visible by comparing
+        // with the current map bounds.
+        if (bounds.contains(feature.getLatLng())) {
+        	console.log(feature);
+           inBounds.push("<tr><td>" + moment(feature.feature.properties.issue_date).format("dddd, MMMM DD")  + 
+           						"</td><td>" + feature.feature.properties.application_status_name + 
+           						"</td><td>"+ feature.feature.properties.owner_name + 
+           						"</td><td>"+ feature.feature.properties.anc +
+           						"</td><td>"+ feature.feature.properties.full_address +
+           						"</td><td>"+ feature.feature.properties.permit_type_name +
+           						"</td><td>"+ feature.feature.properties.permit_subtype_name +
+           						"</td><td>"+ autolinker.link(feature.feature.properties.desc_of_work) +
+           						"</td><td>"+ feature.feature.properties.permit_id );
+        }
+    });
+    // Display a list of markers.
+    document.getElementById('coordinates').innerHTML = inBounds.join('\n');
+}
+
+map.on('move', onmove);
+
+// call onmove off the bat so that the list is populated.
+// otherwise, there will be no markers listed until the map is moved.
+onmove();
+    });
+
+</script>
+
+</body>
+</html>
