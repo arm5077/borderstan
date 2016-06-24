@@ -6,8 +6,6 @@ L.Control.SliderControl = L.Control.extend({
         isEpoch: false,     // whether the time attribute is seconds elapsed from epoch
         startTimeIdx: 0,    // where to start looking for a timestring
         timeStrLength: 10,  // the size of  yyyy-mm-dd hh:mm:ss - if millis are present this will be larger
-        maxValue: -1,
-        minValue: 0,
         showAllOnStart: false,
         markers: null,
         range: false,
@@ -74,6 +72,7 @@ L.Control.SliderControl = L.Control.extend({
                 ++index_temp;
             });
             options.maxValue = index_temp - 1;
+            options.minValue = 0;
             this.options = options;
         } else {
             console.log("Error: You have to specify a layer via new SliderControl({layer: your_layer});");
@@ -88,16 +87,21 @@ L.Control.SliderControl = L.Control.extend({
         }
         $('#leaflet-slider').remove();
     },
-
+    
     startSlider: function () {
         _options = this.options;
         _extractTimestamp = this.extractTimestamp
         var index_start = _options.minValue;
         if(_options.showAllOnStart){
             index_start = _options.maxValue;
-            if(_options.range) _options.values = [_options.minValue,_options.maxValue];
+            if(_options.range){
+              if(!_options.values){
+                _options.values = [_options.minValue,_options.maxValue];
+              }              
+            } 
             else _options.value = _options.maxValue;
         }
+        
         $("#leaflet-slider").slider({
             range: _options.range,
             value: _options.value,
@@ -167,9 +171,17 @@ L.Control.SliderControl = L.Control.extend({
             $('#slider-timestamp').html(_extractTimeStamp(_options.markers[index_start].feature.properties[_options.timeAttribute], _options));
             
         }
-        for (i = _options.minValue; i <= index_start; i++) {
-            _options.map.addLayer(_options.markers[i]);
+        if( _options.values ){
+          for (i = _options.values[0]; i <= _options.values[1]; i++) {
+              _options.map.addLayer(_options.markers[i]);
+          }
         }
+        else {
+          for (i = _options.minValue; i <= index_start; i++) {
+              _options.map.addLayer(_options.markers[i]);
+          }  
+        }
+        
     }
 });
 

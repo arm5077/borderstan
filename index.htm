@@ -16,7 +16,7 @@
     <script src="http://ghybs.github.io/Leaflet.MarkerCluster.LayerSupport/examples/leaflet.markercluster-src.js"></script>
     <script src="http://ghybs.github.io/Leaflet.MarkerCluster.LayerSupport/leaflet.markercluster.layersupport-src.js"></script>
 
-    <script src="http://www.eliglazier.com/assets/js/SliderControl.js" type="text/javascript"></script>
+    <script src="SliderControl.js" type="text/javascript"></script>
         <script src='http://momentjs.com/downloads/moment.js'></script>
     <script type="text/javascript" src="http://www.eliglazier.com/assets/js/Autolinker.min.js"></script>
 
@@ -434,17 +434,44 @@ function resetHighlight(e) {
         // Add to map first before checking in.
         var maybe = L.markerClusterGroup.layerSupport({showCoverageOnHover:false,spiderfyDistanceMultiplier:1.5,maxClusterRadius: 55, spiderLegPolylineOptions:{weight:.01}}).addTo(map).checkIn(testlayer);
 
+		// Check for dates in URL
+		startIndex = 0;
+		if(getParameterByName('start')){
+			startDate = moment.utc(getParameterByName('start').replace("/",""));
+
+			json.features.forEach(function(point, i){ 
+				if( moment.utc(point.properties.issue_date).isSameOrAfter(startDate) && startIndex == 0)
+					startIndex = i;
+			})
+		}
+		
+		endIndex = json.features.length - 1;
+		if(getParameterByName('end')){
+			endDate = moment.utc(getParameterByName('end').replace("/","")+"T23:59:59.000Z");
+			json.features.forEach(function(point, i){ 
+				if( moment.utc(point.properties.issue_date).isAfter(endDate) && endIndex == json.features.length - 1)
+					endIndex = i - 1;
+			})
+		}
+		
         sliderControl = L.control.sliderControl({
             position: 'topright',
             layer: testlayer,
             range: true,
-            showAllOnStart:true
+            showAllOnStart:true,
+			values: [startIndex, endIndex]
         });
 
         //Make sure to add the slider to the map ;-)
         map.addControl(sliderControl);
         //And initialize the slider
         sliderControl.startSlider();
+		
+		
+		$("#leaflet-slider").slider('values', 0, startIndex);
+		$("#leaflet-slider").slider('values', 1, endIndex);
+		
+		
 function changeTimestamps(){
  $("#timestamp1").html( moment.utc(sliderControl.options.markers[$("#leaflet-slider").slider( "values", 0 )].feature.properties.issue_date).format("MMMM DD") )
  
@@ -453,6 +480,8 @@ function changeTimestamps(){
 }
 
 $("#leaflet-slider").on( "mousemove", changeTimestamps);
+
+
 
 changeTimestamps();
 
@@ -465,7 +494,6 @@ changeTimestamps();
         // For each marker, consider whether it is currently visible by comparing
         // with the current map bounds.
         if (bounds.contains(feature.getLatLng())) {
-        	console.log(feature);
            inBounds.push("<tr><td>" + moment(feature.feature.properties.issue_date).format("dddd, MMMM DD")  + 
            						"</td><td>" + feature.feature.properties.application_status_name + 
            						"</td><td>"+ feature.feature.properties.owner_name + 
@@ -487,6 +515,18 @@ map.on('move', onmove);
 // otherwise, there will be no markers listed until the map is moved.
 onmove();
     });
+
+
+// From http://stackoverflow.com/a/901144
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 </script>
 
